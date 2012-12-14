@@ -30,7 +30,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
     d3.Pie.settings = {
         'height' : 500,
         'width' : 500,
-        'radius' : 300,
+        'radius' : 200,
         'padding': 2,
         'data' : null,  // I'll need to figure out how I want to present data options to the user
         'dataUrl' : 'flare.json',  // this is a url for a resource
@@ -94,21 +94,13 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
 
             container.pie = d3.layout.pie()
                 .sort(null)
-                .value(function(d) { return d[container.opts.dataStructure.value]});
+                container.pie.value(function(d) { return d[container.opts.dataStructure.value]});
 
             container.chart = d3.select(container.el).append("svg")
                 .attr("width", container.width)
                 .attr("height", container.height)
                 .append("g")
                 .attr("transform", "translate(" + container.width / 2 + "," + container.height / 2 + ")");
-
-            // run the update chart function
-            container.updateChart();
-            
-        },
-        updateChart : function() {
-
-            var container = this;
 
             container.values = container.chart.selectAll(".arc")
                 .data(container.pie(container.data))
@@ -126,6 +118,51 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
+
+            // run the update chart function
+            //container.updateChart();
+            
+        },
+        updateChart : function() {
+
+            var container = this;
+
+            container.values = container.chart.selectAll(".arc")
+                .data(container.pie(container.data));
+
+            container.values.select("path")
+                .attr("d", container.arc)
+                .style("fill", function(d) {
+                    return container.color(d.data[container.opts.dataStructure.name]);
+                });
+
+            container.values.select("text")
+                .attr("transform", function(d) { return "translate(" + container.arc.centroid(d) + ")";})
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle")
+                .text(function(d) { return d.data[container.opts.dataStructure.name]});
+
+            var oldValues = container.values.exit();
+            oldValues.select("path").remove();
+            oldValues.select("text").remove();
+            oldValues.remove();
+
+            var newValues = container.values.enter()
+                .append("g")
+                .attr("class", "arc");
+            
+            newValues    
+                .append("path")
+                .attr("d", container.arc)
+                .style("fill", function(d) {
+                    return container.color(d.data[container.opts.dataStructure.name]);
+                });
+                
+            newValues.append("text")
+                .attr("transform", function(d) { return "translate(" + container.arc.centroid(d) + ")";})
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle")
+                .text(function(d) { return d.data[container.opts.dataStructure.name]}); 
         },
         // resets the zoom on the chart
         resetChart : function() {
