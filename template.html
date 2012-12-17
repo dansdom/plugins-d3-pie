@@ -14,9 +14,6 @@
       <button onclick="updateChartA()">Data 1</button>
       <button onclick="updateChartB()">Data 2</button>
       <button onclick="updateChartC()">Data 3</button>
-      <!--
-      <button onclick="updateChartD()">Data 4</button>
-    -->
 
       <div id="chart1"></div>
 
@@ -25,7 +22,7 @@
         d3.pie(chart1, {
           'diameter': 800,
           'width' : 1200,
-          'height' : 400,
+          'height' : 500,
           'padding': 1,
           'dataUrl' : 'data.json',
           'dataType' : 'json',
@@ -48,99 +45,9 @@
         function updateChartC() {
           d3.pie(chart1, "updateData", "data3.json");
         };
-        /*
-        function updateChartD() {
-          d3.force(chart1, "updateData", "flare.json");
-        };
-        */
 
       </script>
     </section>
-
-    <!--
-
-    <section>
-      <h1>Chart 2</h1>
-      <button onclick="updateChart2A()">Data 1</button>
-      <button onclick="updateChart2B()">Data 2</button>
-      <button onclick="updateChart2C()">Data 3</button>
-      <button onclick="updateChart2D()">Data 4</button>
-      <button onclick="reset2()">Reset Chart</button>
-
-      <div id="chart2"></div>
-
-      <script type="text/javascript">
-        var chart2 = document.getElementById("chart2");
-        d3.pack(chart2, {
-          'diameter': 1000,
-          'padding': 0,
-          'dataUrl' : 'flare2.json',
-          'dataType' : 'json',
-          'chartType' : 'pack'
-        });
-        function updateChart2A() {
-          d3.pack(chart2, "updateData", "flare.json");
-        };
-
-        function updateChart2B() {
-          d3.pack(chart2, "updateData", "flare2.json");
-        };
-
-        function updateChart2C() {
-          d3.pack(chart2, "updateData", "flare3.json");
-        };
-
-        function updateChart2D() {
-          d3.pack(chart2, "updateData", "flare4.json");
-        };
-
-        function reset2() {
-          d3.pack(chart2, "resetChart");
-        }
-      </script>
-    </section>
-
-    <section>
-      <h1>Chart 3</h1>
-      <button onclick="updateChart3A()">Data 1</button>
-      <button onclick="updateChart3B()">Data 2</button>
-      <button onclick="updateChart3C()">Data 3</button>
-      <button onclick="updateChart3D()">Data 4</button>
-      <button onclick="reset3()">Reset Chart</button>
-
-      <div id="chart3"></div>
-
-      <script type="text/javascript">
-        var chart3 = document.getElementById("chart3");
-        d3.pack(chart3, {
-          'diameter': 400,
-          'padding': 5,
-          'dataUrl' : 'flare.json',
-          'dataType' : 'json',
-          'chartType' : 'bubble'
-        });
-        function updateChart3A() {
-          d3.pack(chart3, "updateData", "flare.json");
-        };
-
-        function updateChart3B() {
-          d3.pack(chart3, "updateData", "flare2.json");
-        };
-
-        function updateChart3C() {
-          d3.pack(chart3, "updateData", "flare3.json");
-        };
-
-        function updateChart3D() {
-          d3.pack(chart3, "updateData", "flare4.json");
-        };
-
-        function reset3() {
-          d3.pack(chart3, "resetChart");
-        }
-      </script>
-    </section>
-  -->
     
   </body>
 </html>

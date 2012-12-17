@@ -33,11 +33,11 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         'radius' : 200,
         'speed' : 1000,
         'padding': 2,
+        'labelPosition' : 1, // this is the position of the segment labels. 0 = center of chart. 1 = center of segment. > 2 = outside the chart
         'data' : null,  // I'll need to figure out how I want to present data options to the user
         'dataUrl' : 'flare.json',  // this is a url for a resource
-        'dataType' : 'json',
-        // instead of defining a color array, I will set a color scale and then let the user overwrite it
-        'colorRange' : [],
+        'dataType' : 'json',        
+        'colorRange' : [], // instead of defining a color array, I will set a color scale and then let the user overwrite it
         'colors' : {            // colors for the nodes
             'parent' : 'white',
             'group' : 'blue',
@@ -117,7 +117,15 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             container.values = container.chart.selectAll(".arc")
                 .data(container.pie(container.data))
                 .enter().append("g")
-                .attr("class", "arc");
+                .attr("class", "arc")
+                .on("mouseover", function(d) {
+                    var center = container.arc1.centroid(d);
+                    var move = "translate(" + (center[0] * 0.2) + "," + (center[1] * 0.2) + ")";
+                    d3.select(this).transition().duration(200).attr("transform", move);
+                })
+                .on("mouseout", function() {
+                    d3.select(this).transition().duration(200).attr("transform", "translate(0,0)");
+                });
 
             // these are the fills of the pie
             container.values.append("path")
@@ -129,16 +137,16 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                     return container.color(d.data[container.opts.dataStructure.name]);
                 })
                 .each(function(d) { 
-                    
-                        this._current = d;
-                    
-                    
+                    this._current = d;   
                 }); // store the initial values of the item
 
                 
             // append the text labels - I could make this an option
             container.values.append("text")
-                .attr("transform", function(d) { return "translate(" + container.arc1.centroid(d) + ")";})
+                .attr("transform", function(d) { 
+                    var center = container.arc1.centroid(d);
+                    return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
+                })
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
@@ -162,7 +170,10 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .attrTween("d", arcTween)
 
             container.values.select("text")
-                .attr("transform", function(d) { return "translate(" + container.arc1.centroid(d) + ")";})
+                .attr("transform", function(d) { 
+                    var center = container.arc1.centroid(d);
+                    return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
+                })
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
@@ -177,7 +188,15 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             
             var newValues = container.values.enter()
                 .append("g")
-                .attr("class", "arc");
+                .attr("class", "arc")
+                .on("mouseover", function(d) {
+                    var center = container.arc1.centroid(d);
+                    var move = "translate(" + (center[0] * 0.1) + "," + (center[1] * 0.1) + ")";
+                    d3.select(this).transition().duration(200).attr("transform", move);
+                })
+                .on("mouseout", function() {
+                    d3.select(this).transition().duration(200).attr("transform", "translate(0,0)");
+                });
             
             newValues    
                 .append("path")
@@ -197,12 +216,16 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                         this._current = 0;
                     }
                 })
-                .style("fill-opacity", 1)
+                .style("fill-opacity", 1);
+
 
             newValues.append("text")
                 .transition()
                 .delay(speed)
-                .attr("transform", function(d) { return "translate(" + container.arc1.centroid(d) + ")";})
+                .attr("transform", function(d) { 
+                    var center = container.arc1.centroid(d);
+                    return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
+                })
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
