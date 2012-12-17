@@ -157,11 +157,10 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             container.values.select("path")
                 .transition()
                 .duration(speed)
-                //.attr("d", container.arc1)
-                //.style("fill", function(d) {
-                //    console.log(d);
-                //    return container.color(d.data[container.opts.dataStructure.name]);
-                //})
+                .style("fill", function(d) {
+                    //console.log(d);
+                    return container.color(d.data[container.opts.dataStructure.name]);
+                })
                 .attrTween("d", arcTween)
 
             container.values.select("text")
@@ -192,6 +191,14 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .style("fill", function(d) {
                     return container.color(d.data[container.opts.dataStructure.name]);
                 })
+                .each(function(d) { 
+                    if (d) {
+                        this._current = d;
+                    }
+                    else {
+                        this._current = 0;
+                    }
+                })
                 .style("fill-opacity", 1)
 
             newValues.append("text")
@@ -201,7 +208,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
-            
 
             function arcTween(a) {
                 var i = d3.interpolate(this._current, a);

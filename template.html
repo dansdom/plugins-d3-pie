@@ -13,8 +13,8 @@
       <h1>Chart 1</h1>
       <button onclick="updateChartA()">Data 1</button>
       <button onclick="updateChartB()">Data 2</button>
-      <!--
       <button onclick="updateChartC()">Data 3</button>
+      <!--
       <button onclick="updateChartD()">Data 4</button>
     -->
 
@@ -45,11 +45,11 @@
         function updateChartB() {
           d3.pie(chart1, "updateData", "data2.json");
         };
-        /*
+        
         function updateChartC() {
-          d3.force(chart1, "updateData", "flare2.json");
+          d3.pie(chart1, "updateData", "data3.json");
         };
-
+        /*
         function updateChartD() {
           d3.force(chart1, "updateData", "flare.json");
         };
