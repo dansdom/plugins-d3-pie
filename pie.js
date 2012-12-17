@@ -155,7 +155,14 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         updateChart : function() {
 
             var container = this,
-                speed = container.opts.speed;
+                speed = container.opts.speed,
+                arcTween = function(a) {
+                    var i = d3.interpolate(this._current, a);
+                    this._current = i(0);
+                    return function(t) {
+                        return container.arc1(i(t));
+                    };
+                };
 
             container.values = container.chart.selectAll(".arc")
                 .data(container.pie(container.data));
@@ -185,7 +192,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             oldValues.remove();
 
             // add the new segments to the chart
-            
             var newValues = container.values.enter()
                 .append("g")
                 .attr("class", "arc")
@@ -218,7 +224,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 })
                 .style("fill-opacity", 1);
 
-
             newValues.append("text")
                 .transition()
                 .delay(speed)
@@ -229,14 +234,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
-
-            function arcTween(a) {
-                var i = d3.interpolate(this._current, a);
-                this._current = i(0);
-                return function(t) {
-                    return container.arc1(i(t));
-                };
-            };
         },
         // resets the zoom on the chart
         resetChart : function() {
