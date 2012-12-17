@@ -129,12 +129,10 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                     return container.color(d.data[container.opts.dataStructure.name]);
                 })
                 .each(function(d) { 
-                    if (d) {
+                    
                         this._current = d;
-                    }
-                    else {
-                        this._current = 0;
-                    }
+                    
+                    
                 }); // store the initial values of the item
 
                 
