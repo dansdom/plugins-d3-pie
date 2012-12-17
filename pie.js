@@ -31,6 +31,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         'height' : 500,
         'width' : 500,
         'radius' : 200,
+        'speed' : 1000,
         'padding': 2,
         'data' : null,  // I'll need to figure out how I want to present data options to the user
         'dataUrl' : 'flare.json',  // this is a url for a resource
@@ -89,80 +90,126 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
 
             // define the chart layout
             container.arc = d3.svg.arc()
+                .startAngle(function(d) { return d.startAngle; })
+                .endAngle(function(d) { return d.startAngle; })
                 .outerRadius(container.opts.radius - container.opts.padding)
                 .innerRadius(0);  // I'll get back to this and add support for donuts. mmmmmmm. donuts
 
+            container.arc1 = d3.svg.arc()
+                .startAngle(function(d) { return d.startAngle; })
+                .endAngle(function(d) { return d.endAngle; })
+                .outerRadius(container.opts.radius - container.opts.padding)
+                .innerRadius(0); 
+
+            // define the pie layout
             container.pie = d3.layout.pie()
                 .sort(null)
-                container.pie.value(function(d) { return d[container.opts.dataStructure.value]});
+                .value(function(d) { return d[container.opts.dataStructure.value]});
 
+            // add the chart element to the document
             container.chart = d3.select(container.el).append("svg")
                 .attr("width", container.width)
                 .attr("height", container.height)
                 .append("g")
                 .attr("transform", "translate(" + container.width / 2 + "," + container.height / 2 + ")");
 
+            // these are the pie segments
             container.values = container.chart.selectAll(".arc")
                 .data(container.pie(container.data))
                 .enter().append("g")
                 .attr("class", "arc");
 
+            // these are the fills of the pie
             container.values.append("path")
                 .attr("d", container.arc)
+                .transition()
+                .duration(container.opts.speed)
+                .attr("d", container.arc1)
                 .style("fill", function(d) {
                     return container.color(d.data[container.opts.dataStructure.name]);
-                });
+                })
+                .each(function(d) { 
+                    if (d) {
+                        this._current = d;
+                    }
+                    else {
+                        this._current = 0;
+                    }
+                }); // store the initial values of the item
+
                 
+            // append the text labels - I could make this an option
             container.values.append("text")
-                .attr("transform", function(d) { return "translate(" + container.arc.centroid(d) + ")";})
+                .attr("transform", function(d) { return "translate(" + container.arc1.centroid(d) + ")";})
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
-
-            // run the update chart function
-            //container.updateChart();
             
         },
         updateChart : function() {
 
-            var container = this;
+            var container = this,
+                speed = container.opts.speed;
 
             container.values = container.chart.selectAll(".arc")
                 .data(container.pie(container.data));
 
             container.values.select("path")
-                .attr("d", container.arc)
-                .style("fill", function(d) {
-                    return container.color(d.data[container.opts.dataStructure.name]);
-                });
+                .transition()
+                .duration(speed)
+                //.attr("d", container.arc1)
+                //.style("fill", function(d) {
+                //    console.log(d);
+                //    return container.color(d.data[container.opts.dataStructure.name]);
+                //})
+                .attrTween("d", arcTween)
 
             container.values.select("text")
-                .attr("transform", function(d) { return "translate(" + container.arc.centroid(d) + ")";})
+                .attr("transform", function(d) { return "translate(" + container.arc1.centroid(d) + ")";})
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
                 .text(function(d) { return d.data[container.opts.dataStructure.name]});
 
+            // get rid of all the old segments - I might animate them out. i.e. animate to 0 deg
             var oldValues = container.values.exit();
             oldValues.select("path").remove();
             oldValues.select("text").remove();
             oldValues.remove();
 
+            // add the new segments to the chart
+            
             var newValues = container.values.enter()
                 .append("g")
                 .attr("class", "arc");
             
             newValues    
                 .append("path")
-                .attr("d", container.arc)
+                .style("fill-opacity", 1e-6)
+                .transition()
+                .delay(speed)
+                .duration(speed)
+                .attr("d", container.arc1)
                 .style("fill", function(d) {
                     return container.color(d.data[container.opts.dataStructure.name]);
-                });
-                
+                })
+                .style("fill-opacity", 1)
+
             newValues.append("text")
-                .attr("transform", function(d) { return "translate(" + container.arc.centroid(d) + ")";})
+                .transition()
+                .delay(speed)
+                .attr("transform", function(d) { return "translate(" + container.arc1.centroid(d) + ")";})
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
-                .text(function(d) { return d.data[container.opts.dataStructure.name]}); 
+                .text(function(d) { return d.data[container.opts.dataStructure.name]});
+            
+
+            function arcTween(a) {
+                var i = d3.interpolate(this._current, a);
+                this._current = i(0);
+                return function(t) {
+                    return container.arc1(i(t));
+                };
+            };
         },
         // resets the zoom on the chart
         resetChart : function() {
@@ -200,7 +247,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 total += data[i][container.opts.dataStructure.value];
             };
             //recurse(null, data);
-            console.log(total);
             return data;  
         },
         // updates the data set for the chart

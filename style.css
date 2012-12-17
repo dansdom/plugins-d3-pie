@@ -16,3 +16,5 @@ line.link {
   stroke: #9ecae1;
   stroke-width: 1.5px;
 }
+
+path {stroke:#fff;stroke-width:0px;}
