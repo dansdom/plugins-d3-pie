@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Pie Chart</title>
     <script type="text/javascript" src="d3.v3.min.js"></script>
-    <script type="text/javascript" src="pie.js"></script>
+    <script type="text/javascript" src="pie-deep.js"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -21,14 +21,13 @@
         var chart1 = document.getElementById("chart1");
         d3.pie(chart1, {
           'diameter': 800,
-          'width' : 1200,
+          'width' : 500,
           'height' : 500,
           'padding': 1,
           'dataUrl' : 'data.json',
           'dataType' : 'json',
-          'chartType' : 'bubble',
           'dataStructure' : {
-            'name' : 'label',
+            'name' : 'name',
             'value' : 'value'
           }
         });
@@ -44,6 +43,47 @@
         
         function updateChartC() {
           d3.pie(chart1, "updateData", "data3.json");
+        };
+
+      </script>
+    </section>
+
+    <section>
+      <h1>Chart 2</h1>
+      <button onclick="updateChart2A()">Data 1</button>
+      <button onclick="updateChart2B()">Data 2</button>
+      <button onclick="updateChart2C()">Data 3</button>
+
+      <div id="chart2"></div>
+
+      <script type="text/javascript">
+        var chart2 = document.getElementById("chart2");
+        d3.pie(chart2, {
+          'diameter': 800,
+          'width' : 500,
+          'height' : 500,
+          'padding': 1,
+          'dataUrl' : 'flare4.json',
+          'dataType' : 'json',
+          'dataStructure' : {
+            'name' : 'name',
+            'value' : 'size',
+            'children' : 'group'
+          },
+          'chartName' : 'Multi-Layer Chart'
+        });
+        
+        
+        function updateChart2A() {
+          d3.pie(chart2, "updateData", "flare4.json");
+        };
+
+        function updateChart2B() {
+          d3.pie(chart2, "updateData", "flare.json");
+        };
+        
+        function updateChart2C() {
+          d3.pie(chart2, "updateData", "flare3.json");
         };
 
       </script>

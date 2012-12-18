@@ -33,7 +33,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         'radius' : 200,
         'speed' : 1000,
         'padding': 2,
-        'labelPosition' : 1, // this is the position of the segment labels. 0 = center of chart. 1 = center of segment. > 2 = outside the chart
+        'labelPosition' : 2.2, // this is the position of the segment labels. 0 = center of chart. 1 = center of segment. > 2 = outside the chart
         'data' : null,  // I'll need to figure out how I want to present data options to the user
         'dataUrl' : 'flare.json',  // this is a url for a resource
         'dataType' : 'json',        
@@ -46,9 +46,11 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         'fontSize' : 12,
         // defines the data structure of the document
         'dataStructure' : {
-            'name' : 'label',
-            'value' : 'value'
-        }
+            'name' : 'name',
+            'value' : 'size',
+            'children' : undefined
+        },
+        'chartName' : false  // If there is a chart name then insert the value. This allows for deep exploration to show category name
     };
     
     // plugin functions go here
@@ -71,7 +73,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             else {
                 container.color = d3.scale.category20();
             }
-
 
             // define the data for the graph
             if (typeof this.opts.dataUrl == "string") {
@@ -104,7 +105,8 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             // define the pie layout
             container.pie = d3.layout.pie()
                 .sort(null)
-                .value(function(d) { return d[container.opts.dataStructure.value]});
+                .value(function(d) { return d.value; });
+
 
             // add the chart element to the document
             container.chart = d3.select(container.el).append("svg")
@@ -113,9 +115,27 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .append("g")
                 .attr("transform", "translate(" + container.width / 2 + "," + container.height / 2 + ")");
 
+            // if there is a chart name, then add it
+            if (container.opts.chartName) {
+                container.chartName = container.chart.append("g")
+                    .attr("class", "chartName")
+                    .append("text")
+                    .text(function() {
+                        var chartTitle;
+                        if (container.dataCategory) {
+                            chartTitle = container.dataCategory;
+                        }
+                        else {
+                            chartTitle = container.opts.chartName;
+                        }
+                        return chartTitle;
+                    });
+            }
+
             // these are the pie segments
+            // filterData : function(data, category) {
             container.values = container.chart.selectAll(".arc")
-                .data(container.pie(container.data))
+                .data(container.pie(container.filterData(container.data, container.dataCategory)))  // filter the data by category
                 .enter().append("g")
                 .attr("class", "arc")
                 .on("mouseover", function(d) {
@@ -125,6 +145,15 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 })
                 .on("mouseout", function() {
                     d3.select(this).transition().duration(200).attr("transform", "translate(0,0)");
+                })
+                .on("click", function(d) {
+                    // get the new data set
+                    //console.log(d);
+                    // check to see if there are children
+                    if (d.data.hasChildren) {
+                        container.dataCategory = d.data.category;
+                        container.updateChart();
+                    }
                 });
 
             // these are the fills of the pie
@@ -134,7 +163,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .duration(container.opts.speed)
                 .attr("d", container.arc1)
                 .style("fill", function(d) {
-                    return container.color(d.data[container.opts.dataStructure.name]);
+                    return container.color(d.data.category);
                 })
                 .each(function(d) { 
                     this._current = d;   
@@ -149,7 +178,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 })
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
-                .text(function(d) { return d.data[container.opts.dataStructure.name]});
+                .text(function(d) { return d.data.category});
             
         },
         updateChart : function() {
@@ -164,15 +193,30 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                     };
                 };
 
+            // if there is a chart name, then add it
+            if (container.opts.chartName) {
+                container.chartName = container.chart.select(".chartName").select("text")
+                    .text(function() {
+                        var chartTitle;
+                        if (container.dataCategory) {
+                            chartTitle = container.dataCategory;
+                        }
+                        else {
+                            chartTitle = container.opts.chartName;
+                        }
+                        return chartTitle;
+                    });
+            }
+
             container.values = container.chart.selectAll(".arc")
-                .data(container.pie(container.data));
+                .data(container.pie(container.filterData(container.data, container.dataCategory)))  // filter the data by category
 
             container.values.select("path")
                 .transition()
                 .duration(speed)
                 .style("fill", function(d) {
                     //console.log(d);
-                    return container.color(d.data[container.opts.dataStructure.name]);
+                    return container.color(d.data.category);
                 })
                 .attrTween("d", arcTween)
 
@@ -183,7 +227,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 })
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
-                .text(function(d) { return d.data[container.opts.dataStructure.name]});
+                .text(function(d) { return d.data.category});
 
             // get rid of all the old segments - I might animate them out. i.e. animate to 0 deg
             var oldValues = container.values.exit();
@@ -202,6 +246,15 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 })
                 .on("mouseout", function() {
                     d3.select(this).transition().duration(200).attr("transform", "translate(0,0)");
+                })
+                .on("click", function(d) {
+                    // get the new data set
+                    //console.log(d);
+                    // check to see if there are children
+                    if (d.data.hasChildren) {
+                        container.dataCategory = d.data.category;
+                        container.updateChart();
+                    }
                 });
             
             newValues    
@@ -212,7 +265,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .duration(speed)
                 .attr("d", container.arc1)
                 .style("fill", function(d) {
-                    return container.color(d.data[container.opts.dataStructure.name]);
+                    return container.color(d.data.category);
                 })
                 .each(function(d) { 
                     if (d) {
@@ -233,14 +286,21 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 })
                 .attr("dy", ".35em")
                 .style("text-anchor", "middle")
-                .text(function(d) { return d.data[container.opts.dataStructure.name]});
+                .text(function(d) { return d.data.category});
+        },
+        filterData : function(data, category) {
+            var chartData = data.filter(function(d) {
+                if (d.className == category) {
+                    return d;
+                }
+            });
+            return chartData;
         },
         // resets the zoom on the chart
         resetChart : function() {
             var container = this;
 
             container.updateChart(container.data);
-                
             // stops the propagation of the event
             if (d3.event) {
                 d3.event.stopPropagation();
@@ -252,26 +312,58 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             var dataList = [],
                 dataLength = data.length,
                 container = this,
+                children = this.opts.dataStructure.children,
                 total = 0,
+                className,
                 i;
         
             // recursively loop through each child of the object
-            /*
+            //console.log(data);
             function recurse(name, node) {
                 if (node[children]) {
+                    
                     node[children].forEach(function(child) { recurse(node[container.opts.dataStructure.name], child); });
+                    // do some error handling here?
+                    if (!node[container.opts.dataStructure.name]) {
+                        className = undefined;
+                    }
+                    else {
+                        className = node[container.opts.dataStructure.name];
+                    }
+                    dataList.push({category: className, className: name, value: total, hasChildren: true});
                 }
                 else {
-                    dataList.push({packageName: name, className: node[container.opts.dataStructure.name], value: node.size});
+                    // do some error handling here?
                     total += node.size;
+                    if (!node[container.opts.dataStructure.name]) {
+                        className = undefined;
+                    }
+                    else {
+                        className = node[container.opts.dataStructure.name];
+                    }
+                    //console.log('doing push');
+                    dataList.push({category: className, className: name, value: node.size, hasChildren: false});  
                 }
             };
-            */
-            for (i = 0; i < dataLength; i++) {
-                total += data[i][container.opts.dataStructure.value];
-            };
-            //recurse(null, data);
-            return data;  
+            
+            // if there are children defined in the data, then do the recurse. If not, then loop through the array
+            if (children) {
+                // this object will hold the current category that is being displayed
+                container.dataCategory = data[container.opts.dataStructure.name];
+                recurse(null, data);
+            }
+            else {
+                // set the container category to 'all'
+                container.dataCategory = 'all';
+                for (i = 0; i < dataLength; i++) {
+                    dataList.push({category: data[i][container.opts.dataStructure.name], className: 'all', value: data[i][container.opts.dataStructure.value]});
+                    total += data[i][container.opts.dataStructure.value];
+                };
+            }
+            
+            //console.log(dataList);
+            //console.log(container.dataCategory);
+            return dataList;   
         },
         // updates the data set for the chart
         updateData : function(url, type) {

@@ -5,6 +5,8 @@ div {
 }
 h1 {font-size:40px;text-transform:uppercase;}
 
+section {float:left;width:49%;text-align:center;}
+
 circle.node {
   cursor: pointer;
   stroke: #000;
@@ -17,4 +19,6 @@ line.link {
   stroke-width: 1.5px;
 }
 
-path {stroke:#fff;stroke-width:2px;cursor:pointer}
+.chartName text {transform:translate(-180px, -210px);font-size:20px;font-weight:bold;}
+
+path {stroke:#fff;stroke-width:1px;cursor:pointer}
