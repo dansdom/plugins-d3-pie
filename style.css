@@ -21,4 +21,4 @@ line.link {
 
 .chartName text {transform:translate(-180px, -210px);font-size:20px;font-weight:bold;}
 
-path {stroke:#fff;stroke-width:1px;cursor:pointer}
+path {stroke:#fff;stroke-width:1px;cursor:pointer;fill:#fff;}

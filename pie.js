@@ -92,12 +92,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             // define the chart layout
             container.arc = d3.svg.arc()
                 .startAngle(function(d) { return d.startAngle; })
-                .endAngle(function(d) { return d.startAngle; })
-                .outerRadius(container.opts.radius - container.opts.padding)
-                .innerRadius(0);  // I'll get back to this and add support for donuts. mmmmmmm. donuts
-
-            container.arc1 = d3.svg.arc()
-                .startAngle(function(d) { return d.startAngle; })
                 .endAngle(function(d) { return d.endAngle; })
                 .outerRadius(container.opts.radius - container.opts.padding)
                 .innerRadius(0); 
@@ -139,7 +133,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .enter().append("g")
                 .attr("class", "arc")
                 .on("mouseover", function(d) {
-                    var center = container.arc1.centroid(d);
+                    var center = container.arc.centroid(d);
                     var move = "translate(" + (center[0] * 0.2) + "," + (center[1] * 0.2) + ")";
                     d3.select(this).transition().duration(200).attr("transform", move);
                 })
@@ -158,10 +152,9 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
 
             // these are the fills of the pie
             container.values.append("path")
-                .attr("d", container.arc)
                 .transition()
                 .duration(container.opts.speed)
-                .attr("d", container.arc1)
+                .attr("d", container.arc)
                 .style("fill", function(d) {
                     return container.color(d.data.category);
                 })
@@ -173,7 +166,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
             // append the text labels - I could make this an option
             container.values.append("text")
                 .attr("transform", function(d) { 
-                    var center = container.arc1.centroid(d);
+                    var center = container.arc.centroid(d);
                     return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
                 })
                 .attr("dy", ".35em")
@@ -189,7 +182,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                     var i = d3.interpolate(this._current, a);
                     this._current = i(0);
                     return function(t) {
-                        return container.arc1(i(t));
+                        return container.arc(i(t));
                     };
                 };
 
@@ -222,7 +215,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
 
             container.values.select("text")
                 .attr("transform", function(d) { 
-                    var center = container.arc1.centroid(d);
+                    var center = container.arc.centroid(d);
                     return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
                 })
                 .attr("dy", ".35em")
@@ -240,7 +233,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .append("g")
                 .attr("class", "arc")
                 .on("mouseover", function(d) {
-                    var center = container.arc1.centroid(d);
+                    var center = container.arc.centroid(d);
                     var move = "translate(" + (center[0] * 0.1) + "," + (center[1] * 0.1) + ")";
                     d3.select(this).transition().duration(200).attr("transform", move);
                 })
@@ -263,7 +256,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .transition()
                 .delay(speed)
                 .duration(speed)
-                .attr("d", container.arc1)
+                .attr("d", container.arc)
                 .style("fill", function(d) {
                     return container.color(d.data.category);
                 })
@@ -281,7 +274,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .transition()
                 .delay(speed)
                 .attr("transform", function(d) { 
-                    var center = container.arc1.centroid(d);
+                    var center = container.arc.centroid(d);
                     return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
                 })
                 .attr("dy", ".35em")
