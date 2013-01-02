@@ -167,8 +167,6 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         setValues : function(oldValues, newValues) {
             var container = this;
 
-            
-
             // add event binding
             container.values
                 // clear current events
