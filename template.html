@@ -20,7 +20,8 @@
       <script type="text/javascript">
         var chart1 = document.getElementById("chart1");
         d3.pie(chart1, {
-          'radius': 300,
+          'outerRadius' : 300,
+          'innerRadius' : 0,
           'width' : 700,
           'height' : 700,
           'padding': 1,
@@ -29,25 +30,26 @@
           'dataStructure' : {
             'name' : 'name',
             'value' : 'value'
-          }
+          },
+          'chartName' : 'Single-Layer Chart'
         });
         
         
         function updateChartA() {
-          d3.pie(chart1, "updateData", "data.json");
+          d3.pie(chart1, {height:300,width:300,outerRadius:50,dataUrl:"data.json"});
         };
 
         function updateChartB() {
-          d3.pie(chart1, "updateData", "data2.json");
+          d3.pie(chart1, {height:600,width:600,outerRadius:250,dataUrl:"data3.json"});
         };
         
         function updateChartC() {
-          d3.pie(chart1, "updateData", "data3.json");
+          d3.pie(chart1, "updateData", "data2.json");
         };
 
       </script>
     </section>
-
+    <!--
     <section>
       <h1>Chart 2</h1>
       <button onclick="updateChart2A()">Data 1</button>
@@ -88,6 +90,6 @@
 
       </script>
     </section>
-    
+    -->
   </body>
 </html>
