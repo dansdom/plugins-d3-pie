@@ -36,7 +36,7 @@
         
         
         function updateChartA() {
-          d3.pie(chart1, {height:300,width:300,outerRadius:50,dataUrl:"data.json"});
+          d3.pie(chart1, {height:300,width:300,outerRadius:50,dataUrl:"data.json",'colorRange' : [d3.rgb(200, 10, 60), d3.rgb(70, 10, 190), d3.rgb(10, 20, 30), d3.rgb(40, 10, 60), d3.rgb(70, 10, 190), d3.rgb(10, 10, 60), d3.rgb(240, 150, 160), d3.rgb(40, 150, 260)]});
         };
 
         function updateChartB() {
