@@ -19,6 +19,6 @@ line.link {
   stroke-width: 1.5px;
 }
 
-.chartName text {transform:translate(-240px, -210px);font-size:20px;font-weight:bold;}
+.chartName {transform:translate(-240px, -210px);font-size:20px;font-weight:bold;}
 
 path {stroke:#fff;stroke-width:1px;cursor:pointer;fill:#fff;}
