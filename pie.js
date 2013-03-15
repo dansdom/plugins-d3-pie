@@ -34,7 +34,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         'outerRadius' : 10,
         'speed' : 1000,
         'padding': 2,
-        'labelPosition' : 2.2, // this is the position of the segment labels. 0 = center of chart. 1 = center of segment. > 2 = outside the chart
+        'labelPosition' : false, // this is the position of the segment labels. 0 = center of chart. 1 = center of segment. > 2 = outside the chart
         'data' : null,  // I'll need to figure out how I want to present data options to the user
         'dataUrl' : 'flare.json',  // this is a url for a resource
         'dataType' : 'json',        
@@ -237,28 +237,74 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .style("fill-opacity", 1);
         },
         setLabels : function(oldValues, newValues) {
-            var container = this;
+            var container = this,
+                labelPosition = this.opts.labelPosition;
 
-            // append the text labels - I could make this an option
-            container.values.select("text")
-                .attr("transform", function(d) { 
-                    var center = container.arc.centroid(d);
-                    return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
-                })
-                .attr("dy", ".35em")
-                .style("text-anchor", "middle")
-                .text(function(d) { return d.data.category});
+            // if the label position is set then add the labels, if not then don't and remove any old ones
+            if (labelPosition > 0) {
 
-            newValues.append("text")
-                .transition()
-                .delay(container.opts.speed)
-                .attr("transform", function(d) { 
-                    var center = container.arc.centroid(d);
-                    return "translate(" + (center[0] * container.opts.labelPosition) + "," + (center[1] * container.opts.labelPosition) + ")";
-                })
-                .attr("dy", ".35em")
-                .style("text-anchor", "middle")
-                .text(function(d) { return d.data.category});
+                // append the text labels - I could make this an option
+                /*
+                container.values.select("text")
+                    .attr("transform", function(d) { 
+                        var center = container.arc.centroid(d);
+                        return "translate(" + (center[0] * labelPosition) + "," + (center[1] * labelPosition) + ")";
+                    })
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "middle")
+                    .text(function(d) { return d.data.category});
+                */
+
+
+                newValues.append("text")
+                    .transition()
+                    .delay(container.opts.speed)
+                    .attr("transform", function(d) { 
+                        var center = container.arc.centroid(d);
+                        console.log('i am a new value');
+                        return "translate(" + (center[0] * labelPosition) + "," + (center[1] * labelPosition) + ")";
+                    })
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "middle")
+                    .text(function(d) { return d.data.category});
+
+                container.values.each(function() {
+                    //console.log(this);
+                    var slice = d3.select(this);
+                    var label = slice.select("text")[0][0];
+                    console.log(label);
+                    if (label) {
+                        console.log('there is a setLabel');
+                        slice.select("text")
+                            .attr("transform", function(d) { 
+                                var center = container.arc.centroid(d);
+                                return "translate(" + (center[0] * labelPosition) + "," + (center[1] * labelPosition) + ")";
+                            })
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "middle")
+                            .text(function(d) { return d.data.category});
+                    }
+                    else {
+                        console.log('no labels');
+                        slice.append("text")
+                            .transition()
+                            .delay(container.opts.speed)
+                            .attr("transform", function(d) { 
+                                var center = container.arc.centroid(d);
+                                console.log('i am a new value');
+                                return "translate(" + (center[0] * labelPosition) + "," + (center[1] * labelPosition) + ")";
+                            })
+                            .attr("dy", ".35em")
+                            .style("text-anchor", "middle")
+                            .text(function(d) { return d.data.category});
+                    }
+                });
+
+            }
+            else {
+                //oldValues.select("text").remove();
+                container.values.select("text").remove();
+            }
         },
         filterData : function(data, category) {
             var chartData = data.filter(function(d) {
@@ -333,8 +379,8 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 };
             }
             
-            console.log(dataList);
-            console.log(container.dataCategory);
+            //console.log(dataList);
+            //console.log(container.dataCategory);
             return dataList;   
         },
         // updates the data set for the chart
