@@ -30,7 +30,8 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
     d3.Pie.settings = {
         'height' : 500,
         'width' : 500,
-        'radius' : 200,
+        'innerRadius' : 200,
+        'outerRadius' : 10,
         'speed' : 1000,
         'padding': 2,
         'labelPosition' : 2.2, // this is the position of the segment labels. 0 = center of chart. 1 = center of segment. > 2 = outside the chart
@@ -332,8 +333,8 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 };
             }
             
-            //console.log(dataList);
-            //console.log(container.dataCategory);
+            console.log(dataList);
+            console.log(container.dataCategory);
             return dataList;   
         },
         // updates the data set for the chart
