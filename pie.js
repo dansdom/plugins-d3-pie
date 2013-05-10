@@ -268,6 +268,8 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                     .style("text-anchor", "middle")
                     .text(function(d) { return d.data.category});
 
+
+                // is there a better way of coding this???
                 container.values.each(function() {
                     //console.log(this);
                     var slice = d3.select(this);
@@ -312,6 +314,7 @@ var Extend = Extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                     return d;
                 }
             });
+            console.log(chartData);
             return chartData;
         },
         // resets the zoom on the chart
