@@ -35,6 +35,7 @@ var extend = extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
         'colorRange' : [], // instead of defining a color array, I will set a color scale and then let the user overwrite it
         'opacity' : 0.5,  // opacity of the segments
         'fontSize' : 12,
+        'hoverAnimation' : true,  // if set then the pieces of the pie animate when the mouse hovers
         // defines the data structure of the document
         'dataStructure' : {
             'name' : 'name',
@@ -334,14 +335,6 @@ var extend = extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .on("mouseover.transition", null)
                 .on("mouseout.transition", null)
                 .on("click.transition", null)
-                .on("mouseover.transition", function(d) {
-                    var center = container.arc.centroid(d);
-                    var move = "translate(" + (center[0] * 0.2) + "," + (center[1] * 0.2) + ")";
-                    d3.select(this).transition().duration(200).attr("transform", move);
-                })
-                .on("mouseout.transition", function() {
-                    d3.select(this).transition().duration(200).attr("transform", "translate(0,0)");
-                })
                 .on("click.transition", function(d) {
                     // get the new data set
                     //console.log(d);
@@ -351,6 +344,18 @@ var extend = extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                         container.updateChart();
                     }
                 });
+
+            if (container.opts.hoverAnimation) {
+                container.values
+                    .on("mouseover.transition", function(d) {
+                        var center = container.arc.centroid(d);
+                        var move = "translate(" + (center[0] * 0.2) + "," + (center[1] * 0.2) + ")";
+                        d3.select(this).transition().duration(200).attr("transform", move);
+                    })
+                    .on("mouseout.transition", function() {
+                        d3.select(this).transition().duration(200).attr("transform", "translate(0,0)");
+                    });
+            }
         },
         setPaths : function(oldValues, newValues) {
             var container = this,
@@ -370,7 +375,7 @@ var extend = extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .duration(speed)
                 .attr("d", container.arc)
                 .style({
-                    "fill" : function(d) { return container.color(d.data.category); },
+                    "fill" : function(d, i) { return container.color(i); },
                     "fill-opacity" : container.opts.opacity
                 })
                 .attrTween("d", arcTween);
@@ -384,7 +389,7 @@ var extend = extend || function(){var h,g,b,e,i,c=arguments[0]||{},f=1,k=argumen
                 .duration(speed)
                 .attr("d", container.arc)
                 .style({
-                    "fill" : function(d) { return container.color(d.data.category); },
+                    "fill" : function(d, i) { return container.color(i); },
                     "fill-opacity" : container.opts.opacity
                 })
                 .each(function(d) { 
